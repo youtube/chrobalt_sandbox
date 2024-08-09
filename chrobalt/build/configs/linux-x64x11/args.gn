@@ -6,6 +6,7 @@ use_dawn=false
 skia_use_dawn=false
 # enable_vulkan=false
 
+use_ozone=true
 
 # Enterprise stuff
 enable_print_content_analysis=false
