@@ -6,6 +6,7 @@ files: |
         (
             .github|
             chrobalt|
+            ui/ozone/platform/starboard |
             docker-compose.yml |
             .pre-commit-config.yaml
         )
