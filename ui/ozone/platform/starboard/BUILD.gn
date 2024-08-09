@@ -1,0 +1,37 @@
+# Copyright 2016 The Chromium Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/config/chromeos/ui_mode.gni")
+import("//gpu/vulkan/features.gni")
+import("//ui/base/ui_features.gni")
+
+visibility = [ "//ui/ozone/*" ]
+
+source_set("starboard") {
+  sources = [
+    "client_native_pixmap_factory_starboard.cc",
+    "client_native_pixmap_factory_starboard.h",
+    "ozone_platform_starboard.cc",
+    "ozone_platform_starboard.h",
+    "starboard_window.cc",
+    "starboard_window.h",
+  ]
+  defines = [
+    "OZONE_IMPLEMENTATION",
+  ]
+  deps = [
+    "//base"
+  ]
+}
+
+source_set("ui_test_support") {
+  testonly = true
+  sources = [
+    "starboard_ozone_ui_controls_test_helper.cc",
+    "starboard_ozone_ui_controls_test_helper.h",
+  ]
+  deps = [
+    "//base"
+  ]
+}
