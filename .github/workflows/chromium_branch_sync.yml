@@ -1,0 +1,28 @@
+name: Sync Chromium branches
+on:
+  # Runs hourly.
+  schedule:
+    - cron:  '0 * * * *'
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        branch_pairs: [
+            # Pairs of Chromium branch ref and Cobalt branch mappings.
+            {chromium: main, cobalt: chromium/main},
+            {chromium: refs/branch-heads/5735, cobalt: chromium/m114},
+            {chromium: refs/branch-heads/6099, cobalt: chromium/m120},
+            {chromium: refs/branch-heads/6478, cobalt: chromium/m126},
+        ]
+    steps:
+      - name: Checkout ${{ matrix.branch_pairs.cobalt }}
+        uses: actions/checkout@v4
+        with:
+          ref: chromium/${{ matrix.branch_pairs.cobalt }}
+      - name: Update ${{ matrix.branch_pairs.cobalt }} from upstream
+        run: |
+          git remote add upstream https://github.com/chromium/chromium.git
+          git fetch upstream ${{ matrix.branch_pairs.chromium }}
+          git push --force origin FETCH_HEAD:refs/heads/${{ matrix.branch_pairs.cobalt }}
