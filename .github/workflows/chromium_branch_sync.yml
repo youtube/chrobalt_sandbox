@@ -1,5 +1,6 @@
 name: Sync Chromium branches
 on:
+  workflow_dispatch:
   # Runs hourly.
   schedule:
     - cron:  '0 * * * *'
