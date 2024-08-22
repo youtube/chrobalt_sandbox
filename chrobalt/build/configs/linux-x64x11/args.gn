@@ -84,3 +84,4 @@ enable_vr=false
 use_kerberos=false
 
 toolkit_views = true
+chrome_pgo_phase = 0
