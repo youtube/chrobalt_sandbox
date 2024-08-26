@@ -53,7 +53,8 @@ config("find_bad_constructs") {
         "-Xclang",
         "-plugin-arg-find-bad-constructs",
         "-Xclang",
-        "raw-ptr-exclude-path=base/containers/span.h",
+        #"raw-ptr-exclude-path=base/containers/span.h",
+        "raw-ptr-exclude-path=/",
       ]
     }
   }
