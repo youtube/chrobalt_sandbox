@@ -5,6 +5,9 @@ services:
       context: chrobalt/docker/linux
       cache_from:
         - ghcr.io/youtube/chrobalt_sandbox/linux:latest
+        - type=gha
+      cache_to:
+        - type=gha
     image: ghcr.io/youtube/chrobalt_sandbox/linux:latest
     platform: linux/amd64
     environment:

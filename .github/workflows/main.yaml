@@ -86,35 +86,76 @@ jobs:
     needs: [initialize]
     runs-on: ubuntu-latest
     env:
-      docker_service: ${{ needs.initialize.outputs.docker_service }}
-      docker_tag: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref_name }}
+      GITHUB_REGISTRY: ghcr.io
+      GAR_REGISTRY: gcr.io
+      DOCKER_SERVICE: ${{ needs.initialize.outputs.docker_service }}
+      FLOATING_TAG: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref_name }}
+      FULL_GIT_SHA: ${{ github.sha }}
     steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
     - name: Checkout files
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Pull just in case
-      run: docker pull ghcr.io/${{ github.repository }}/linux || true
-    - name: Build containers using docker compose
-      run: docker compose build ${docker_service}
-    - name: Re-tag
+      uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+    - name: Process Tags
       run: |
-        tag=${{ env.docker_tag }}
+        tag=${{ env.FLOATING_TAG }}
         tag=${tag//\//__}
-        echo "docker_tag=${tag}" | head -n 1 >> $GITHUB_ENV
-        docker tag ghcr.io/${{ github.repository }}/linux:latest ghcr.io/${{ github.repository }}/linux:${tag}
-    - name: Work
-      run: docker push ghcr.io/${{ github.repository }}/linux:${{ env.docker_tag }}
+        tag="${tag%.1[+,-]}"
+        echo "FLOATING_TAG=${tag}" >> $GITHUB_ENV
+    # Handle GitHub registry used for everything other than pull requests off forked repos.
+    - name: Login to GitHub Docker Registry ${{env.GITHUB_REGISTRY}}
+      if: ${{ (github.event_name != 'pull_request') || (github.event.pull_request.head.repo.full_name == github.repository) }}
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+      with:
+        registry: ${{ env.GITHUB_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Set Docker Tag
+      id: set-docker-tag-github
+      if: ${{ (github.event_name != 'pull_request') || (github.event.pull_request.head.repo.full_name == github.repository) }}
+      run: |
+        echo "DOCKER_TAG=${GITHUB_REGISTRY}/${{ github.repository }}/${DOCKER_SERVICE}:${FULL_GIT_SHA::7}" >> $GITHUB_ENV
+        echo "DOCKER_FLOATING_TAG=${GITHUB_REGISTRY}/${{ github.repository }}/${DOCKER_SERVICE}:${FLOATING_TAG}" >> $GITHUB_ENV
+      shell: bash
+    # Handle Google Artifact Registry used for pull requests off forked repos.
+    - name: Set up Cloud SDK
+      if: ${{ (github.event_name == 'pull_request') && (github.event.pull_request.head.repo.fork) }}
+      uses: isarkis/setup-gcloud@40dce7857b354839efac498d3632050f568090b6 # v1.1.1
+    - name: Login to GAR and set tag
+      if: ${{ (github.event_name == 'pull_request') && (github.event.pull_request.head.repo.fork) }}
+      run: |
+        # Need to login to GAR to be able to push images created by fork based PR workflows.
+        PROJECT_NAME=$(gcloud config get-value project)
+        METADATA="http://metadata.google.internal./computeMetadata/v1"
+        SVC_ACCT="${METADATA}/instance/service-accounts/default"
+        ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' ${SVC_ACCT}/token | cut -d'"' -f 4)
+        printf ${ACCESS_TOKEN} | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+        echo "DOCKER_TAG=${GAR_REGISTRY}/${PROJECT_NAME}/${DOCKER_SERVICE}:${FULL_GIT_SHA::7}" >> $GITHUB_ENV
+        echo "DOCKER_FLOATING_TAG=${GAR_REGISTRY}/${PROJECT_NAME}/${DOCKER_SERVICE}:${FLOATING_TAG}" >> $GITHUB_ENV
+      shell: bash
+    # Proceed with docker pull, build, tag, and push.
+    - name: Docker Pull
+      run: |
+        docker pull "${DOCKER_TAG}" || true
+        docker pull "${DOCKER_FLOATING_TAG}" || true
+    - name: Docker Build
+      run: docker compose build ${DOCKER_SERVICE}
+    - name: Docker Tag
+      run: |
+        docker tag ghcr.io/${{ github.repository }}/${DOCKER_SERVICE}:latest ${DOCKER_TAG}
+        docker tag ghcr.io/${{ github.repository }}/${DOCKER_SERVICE}:latest ${DOCKER_FLOATING_TAG}
+    - name: Docker Push
+      run: |
+        docker push ${DOCKER_TAG}
+        docker push ${DOCKER_FLOATING_TAG}
     outputs:
-      docker_tag: ghcr.io/${{ github.repository }}/linux:${{ env.docker_tag }}
+      docker_tag: ${{ env.DOCKER_TAG }}
 
   # Runs builds.
   build:
