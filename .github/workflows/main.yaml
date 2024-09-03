@@ -110,7 +110,7 @@ jobs:
         echo "FLOATING_TAG=${tag}" >> $GITHUB_ENV
     # Handle GitHub registry used for everything other than pull requests off forked repos.
     - name: Login to GitHub Docker Registry ${{env.GITHUB_REGISTRY}}
-      if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+      if: ${{ (github.event_name != 'pull_request') || (github.event.pull_request.head.repo.full_name == github.repository) }}
       uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
       with:
         registry: ${{ env.GITHUB_REGISTRY }}
@@ -118,7 +118,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Set Docker Tag
       id: set-docker-tag-github
-      if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+      if: ${{ (github.event_name != 'pull_request') || (github.event.pull_request.head.repo.full_name == github.repository) }}
       run: |
         echo "DOCKER_TAG=${GITHUB_REGISTRY}/${{ github.repository }}/${DOCKER_SERVICE}:${FULL_GIT_SHA::7}" >> $GITHUB_ENV
         echo "DOCKER_FLOATING_TAG=${GITHUB_REGISTRY}/${{ github.repository }}/${DOCKER_SERVICE}:${FLOATING_TAG}" >> $GITHUB_ENV
