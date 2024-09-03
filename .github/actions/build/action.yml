@@ -49,10 +49,14 @@ runs:
       - name: sccache check
         run: sccache -s
         shell: bash
+      - name: find apks
+        run: find src/out -name \*.apk -print
+        shell: bash
       - name: Archive Android APKs
         if: startsWith(${{matrix.platform}}, 'android')
         uses: actions/upload-artifact@v4
         with:
-          name: APKs
+          name: ${{ matrix.platform }} APKs
           path: |
-            src/out/android-arm64_qa/apks/*.apk
+            src/out/${{ matrix.platform }}_qa/apks/*.apk
+            src/out/${{ matrix.platform }}_qa/*_apk/*.apk
