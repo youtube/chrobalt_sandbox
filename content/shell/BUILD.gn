@@ -632,6 +632,7 @@ if (is_android) {
       "//build/win:default_exe_manifest",
       "//content/public/app",
       "//sandbox",
+      "//starboard",
     ]
 
     data_deps = [

@@ -20,6 +20,10 @@
 #include "content/shell/app/ios/shell_application_ios.h"
 #endif
 
+#if BUILDFLAG(IS_STARBOARD)
+#include "starboard/custom_print.h"
+#endif
+
 #if BUILDFLAG(IS_WIN)
 
 #if !defined(WIN_CONSOLE_APP)
@@ -72,6 +76,9 @@ int main(int argc, const char** argv) {
 #else
 
 int main(int argc, const char** argv) {
+#if BUILDFLAG(IS_STARBOARD)
+  SbCustomPrint("Starting up app");
+#endif
   content::ShellMainDelegate delegate;
   content::ContentMainParams params(&delegate);
   params.argc = argc;

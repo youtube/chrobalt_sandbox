@@ -133,6 +133,12 @@
 #define OS_POSIX 1
 #endif
 
+#if defined(STARBOARD) || 1
+#define BUILDFLAG_INTERNAL_IS_STARBOARD() (1)
+#else
+#define BUILDFLAG_INTERNAL_IS_STARBOARD() (0)
+#endif
+
 // OS build flags
 #if defined(OS_AIX)
 #define BUILDFLAG_INTERNAL_IS_AIX() (1)
