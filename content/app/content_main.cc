@@ -77,6 +77,10 @@
 #endif
 #endif  // BUILDFLAG(IS_MAC)
 
+#if BUILDFLAG(IS_STARBOARD)
+#include "starboard/custom_print.h"
+#endif
+
 namespace content {
 
 namespace {
@@ -339,6 +343,9 @@ RunContentProcess(ContentMainParams params,
 // This function must be marked with NO_STACK_PROTECTOR or it may crash on
 // return, see the --change-stack-guard-on-fork command line flag.
 int NO_STACK_PROTECTOR ContentMain(ContentMainParams params) {
+#if BUILDFLAG(IS_STARBOARD)
+  SbCustomPrint("Starting up content shell");
+#endif
   auto runner = ContentMainRunner::Create();
   return RunContentProcess(std::move(params), runner.get());
 }

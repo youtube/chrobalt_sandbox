@@ -280,6 +280,12 @@ if (custom_toolchain != "") {
   set_default_toolchain(_default_toolchain)
 }
 
+if (target_os == "linux") {
+  starboard_toolchain = "//build/toolchain/linux:starboard"
+} else {
+  starboard_toolchain = _default_toolchain
+}
+
 # =============================================================================
 # OS DEFINITIONS
 # =============================================================================

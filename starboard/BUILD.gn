@@ -1,0 +1,26 @@
+declare_args() {
+  is_starboard = false
+
+  force_visibility = true
+}
+
+if (is_linux) {
+  assert(is_starboard, "Must be compiled with starboard toolchain")
+}
+assert(current_toolchain == starboard_toolchain,
+       "Must be compiled with starboard toolchain")
+
+shared_library("starboard") {
+  sources = [
+    "custom_print.cc",
+    "custom_print.h",
+  ]
+
+  if (force_visibility) {
+    defines = [ "FORCE_DEFAULT_VISIBILITY" ]
+  }
+
+  if (is_android) {
+    configs -= [ "//build/config/android:hide_all_but_jni_onload" ]
+  }
+}
