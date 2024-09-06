@@ -84,7 +84,7 @@ jobs:
   # Builds, tags, and pushes Cobalt docker build images to ghr.
   docker-build-image:
     needs: [initialize]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux-runner]
     env:
       GITHUB_REGISTRY: ghcr.io
       GAR_REGISTRY: gcr.io
