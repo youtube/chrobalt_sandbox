@@ -1,0 +1,43 @@
+name: android
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+    branches:
+      - 'dev/m114_ci'
+  push:
+    branches:
+      - 'dev/m114_ci'
+  workflow_dispatch:
+    inputs:
+      nightly:
+        description: 'Nightly workflow.'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  android-arm64:
+    uses: ./.github/workflows/main.yaml
+    permissions:
+      packages: write
+      pull-requests: write
+    with:
+      platform: android-arm64
+      nightly: ${{ github.event.inputs.nightly }}
+  android-arm:
+    uses: ./.github/workflows/main.yaml
+    permissions:
+      packages: write
+      pull-requests: write
+    with:
+      platform: android-arm
+      nightly: ${{ github.event.inputs.nightly }}
+  android-x86:
+    uses: ./.github/workflows/main.yaml
+    permissions:
+      packages: write
+      pull-requests: write
+    with:
+      platform: android-x86
+      nightly: ${{ github.event.inputs.nightly }}
