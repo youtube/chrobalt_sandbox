@@ -176,7 +176,7 @@ if (current_toolchain == starboard_toolchain) {
   }
 
   starboard_platform_target("starboard_static") {
-    target_type = "group"
+    target_type = "shared_library"
   }
 
   if (platform_tests_path == "") {

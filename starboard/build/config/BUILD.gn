@@ -159,7 +159,7 @@ config("target") {
       }
     }
 
-    if (is_starboard) {
+    if (current_toolchain == starboard_toolchain) {
       configs = [ ":starboard" ]
     } else if (is_native_target_build) {
       configs = [ ":native_target_build" ]
