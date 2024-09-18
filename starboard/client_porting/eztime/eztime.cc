@@ -40,7 +40,7 @@ UChar g_timezones[kEzTimeZoneCount][kMaxTimeZoneSize];
 // Once control for initializing eztime static data.
 pthread_once_t g_eztime_initialization_once = PTHREAD_ONCE_INIT;
 
-// The timezone names in ASCII (UTF8-compatible) literals. This must match the
+// The timezone_tmp names in ASCII (UTF8-compatible) literals. This must match the
 // order of the EzTimeZone enum.
 const char* kTimeZoneNames[] = {
     "America/Los_Angeles",
@@ -51,11 +51,11 @@ const char* kTimeZoneNames[] = {
 SB_COMPILE_ASSERT(SB_ARRAY_SIZE(kTimeZoneNames) == kEzTimeZoneCount,
                   names_for_each_time_zone);
 
-// Initializes a single timezone in the ICU timezone lookup table.
-void InitializeTimeZone(EzTimeZone timezone) {
+// Initializes a single timezone_tmp in the ICU timezone_tmp lookup table.
+void InitializeTimeZone(EzTimeZone timezone_tmp) {
   UErrorCode status = U_ZERO_ERROR;
-  UChar* timezone_name = g_timezones[timezone];
-  const char* timezone_name_utf8 = kTimeZoneNames[timezone];
+  UChar* timezone_name = g_timezones[timezone_tmp];
+  const char* timezone_name_utf8 = kTimeZoneNames[timezone_tmp];
   if (!timezone_name_utf8) {
     timezone_name[0] = 0;
     return;
@@ -72,8 +72,8 @@ void Initialize() {
   IcuInit();
 
   // Initialize |g_timezones| table.
-  for (int timezone = 0; timezone < kEzTimeZoneCount; ++timezone) {
-    InitializeTimeZone(static_cast<EzTimeZone>(timezone));
+  for (int timezone_tmp = 0; timezone_tmp < kEzTimeZoneCount; ++timezone_tmp) {
+    InitializeTimeZone(static_cast<EzTimeZone>(timezone_tmp));
   }
 }
 
@@ -92,10 +92,10 @@ UDate SbTimeToUDate(int64_t sb_time) {
 }
 
 // Gets the cached TimeZone ID from |g_timezones| for the given EzTimeZone
-// |timezone|.
-const UChar* GetTimeZoneId(EzTimeZone timezone) {
+// |timezone_tmp|.
+const UChar* GetTimeZoneId(EzTimeZone timezone_tmp) {
   pthread_once(&g_eztime_initialization_once, &Initialize);
-  const UChar* timezone_id = g_timezones[timezone];
+  const UChar* timezone_id = g_timezones[timezone_tmp];
   if (timezone_id[0] == 0) {
     return NULL;
   }
@@ -106,15 +106,15 @@ const UChar* GetTimeZoneId(EzTimeZone timezone) {
 }  // namespace
 
 bool EzTimeTExplode(const EzTimeT* SB_RESTRICT in_time,
-                    EzTimeZone timezone,
+                    EzTimeZone timezone_tmp,
                     EzTimeExploded* SB_RESTRICT out_exploded) {
   SB_DCHECK(in_time);
   EzTimeValue value = EzTimeTToEzTimeValue(*in_time);
-  return EzTimeValueExplode(&value, timezone, out_exploded, NULL);
+  return EzTimeValueExplode(&value, timezone_tmp, out_exploded, NULL);
 }
 
 bool EzTimeValueExplode(const EzTimeValue* SB_RESTRICT value,
-                        EzTimeZone timezone,
+                        EzTimeZone timezone_tmp,
                         EzTimeExploded* SB_RESTRICT out_exploded,
                         int* SB_RESTRICT out_milliseconds) {
   SB_DCHECK(value);
@@ -129,7 +129,7 @@ bool EzTimeValueExplode(const EzTimeValue* SB_RESTRICT value,
 
   // See:
   // http://pubs.opengroup.org/onlinepubs/009695399/functions/gmtime.html
-  UCalendar* calendar = ucal_open(GetTimeZoneId(timezone), -1,
+  UCalendar* calendar = ucal_open(GetTimeZoneId(timezone_tmp), -1,
                                   uloc_getDefault(), UCAL_GREGORIAN, &status);
   if (!calendar) {
     return false;
@@ -161,14 +161,14 @@ bool EzTimeValueExplode(const EzTimeValue* SB_RESTRICT value,
 }
 
 EzTimeT EzTimeTImplode(EzTimeExploded* SB_RESTRICT exploded,
-                       EzTimeZone timezone) {
-  EzTimeValue value = EzTimeValueImplode(exploded, 0, timezone);
+                       EzTimeZone timezone_tmp) {
+  EzTimeValue value = EzTimeValueImplode(exploded, 0, timezone_tmp);
   return EzTimeValueToEzTimeT(&value);
 }
 
 EzTimeValue EzTimeValueImplode(EzTimeExploded* SB_RESTRICT exploded,
                                int millisecond,
-                               EzTimeZone timezone) {
+                               EzTimeZone timezone_tmp) {
   SB_DCHECK(exploded);
   UErrorCode status = U_ZERO_ERROR;
 
@@ -180,7 +180,7 @@ EzTimeValue EzTimeValueImplode(EzTimeExploded* SB_RESTRICT exploded,
 
   // See:
   // http://pubs.opengroup.org/onlinepubs/009695399/functions/gmtime.html
-  UCalendar* calendar = ucal_open(GetTimeZoneId(timezone), -1,
+  UCalendar* calendar = ucal_open(GetTimeZoneId(timezone_tmp), -1,
                                   uloc_getDefault(), UCAL_GREGORIAN, &status);
   if (!calendar) {
     EzTimeValue zero_time = {};

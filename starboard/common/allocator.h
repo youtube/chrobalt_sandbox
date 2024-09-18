@@ -59,17 +59,13 @@ class Allocator {
   // Note that the coding style recommends that in/out parameters to be placed
   // after input parameters but |size| is kept in the left for consistency.
   virtual void* AllocateForAlignment(std::size_t* /*size*/,
-                                     std::size_t /*alignment*/) {
-    return 0;
-  }
+                                     std::size_t /*alignment*/);
 
   // Frees memory previously allocated via any call to Allocate().
   virtual void Free(void* memory) = 0;
 
   // Frees memory with a size. By default it will delegate to Free().
-  virtual void FreeWithSize(void* memory, std::size_t /*size*/) {
-    Free(memory);
-  }
+  virtual void FreeWithSize(void* memory, std::size_t /*size*/);
 
   // Returns the allocator's total capacity for allocations.  It will always
   // be true that GetSize() <= GetCapacity(), though it is possible for

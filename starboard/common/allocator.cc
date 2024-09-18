@@ -19,5 +19,13 @@ namespace common {
 
 const size_t Allocator::kMinAlignment = 16;
 
+void* Allocator::AllocateForAlignment(std::size_t*, std::size_t) {
+  return 0;
+}
+
+void Allocator::FreeWithSize(void* memory, std::size_t) {
+  Free(memory);
+}
+
 }  // namespace common
 }  // namespace starboard
