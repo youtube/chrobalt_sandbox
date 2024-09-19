@@ -22,7 +22,7 @@ sb_static_contents_output_data_dir = "$root_out_dir/content"
 sb_enable_lib = false
 sb_evergreen_compatible_use_libunwind = false
 
-gl_type = "system_gles2"
+gl_type = "angle"
 sb_enable_cpp17_audit = true
 sb_enable_cpp20_audit = true
 sb_has_unused_symbol_issue = false
@@ -36,3 +36,6 @@ platform_tests_path =
 cobalt_fastbuild = false
 use_asan = false
 use_tsan = false
+is_starboard = true
+
+path_to_nasm = "nasm"
