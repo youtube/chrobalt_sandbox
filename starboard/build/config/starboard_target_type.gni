@@ -38,19 +38,22 @@ template("starboard_platform_target") {
       configs += extra_configs
     }
     if (target_type == "shared_library") {
-      build_loader = false
-      output_extension = starboard_shared_library_extension
+      # build_loader = false
+      if (host_os != "win") {
+        output_extension = starboard_shared_library_extension
+      }
     }
     public_deps = [
+      # "//starboard/client_porting/cwrappers",
       "//starboard/common",
       "//starboard/egl_and_gles",
     ]
-    if (sb_is_evergreen_compatible &&
-        current_toolchain == starboard_toolchain) {
-      public_deps += [ "//third_party/crashpad/crashpad/wrapper" ]
-    } else {
-      public_deps += [ "//third_party/crashpad/crashpad/wrapper:wrapper_stub" ]
-    }
+    # if (sb_is_evergreen_compatible &&
+    #     current_toolchain == starboard_toolchain) {
+    #   public_deps += [ "//third_party/crashpad/crashpad/wrapper" ]
+    # } else {
+    #   public_deps += [ "//third_party/crashpad/crashpad/wrapper:wrapper_stub" ]
+    # }
     if (!sb_is_evergreen) {
       public_deps += [ "//$starboard_path:starboard_platform" ]
     }

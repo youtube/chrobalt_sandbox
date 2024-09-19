@@ -110,14 +110,14 @@ group("starboard_group") {
       "//starboard/common",
     ]
 
-    if (!sb_is_modular || sb_is_evergreen) {
-      if (sb_is_evergreen_compatible &&
-          current_toolchain == starboard_toolchain) {
-      } else {
-        public_deps +=
-            [ "//third_party/crashpad/crashpad/wrapper:wrapper_stub" ]
-      }
-    }
+    # if (!sb_is_modular || sb_is_evergreen) {
+    #   if (sb_is_evergreen_compatible &&
+    #       current_toolchain == starboard_toolchain) {
+    #   } else {
+    #     public_deps +=
+    #         [ "//third_party/crashpad/crashpad/wrapper:wrapper_stub" ]
+    #   }
+    # }
 
     if (final_executable_type == "shared_library" &&
         current_toolchain != default_toolchain) {
