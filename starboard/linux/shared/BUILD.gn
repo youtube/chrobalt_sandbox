@@ -33,11 +33,11 @@ group("starboard_platform") {
   ]
 
   if (sb_is_evergreen_compatible) {
-    public_deps += [
-      "//starboard/elf_loader:constants",
-      "//starboard/elf_loader:evergreen_config",
-      "//starboard/loader_app:pending_restart",
-    ]
+    # public_deps += [
+    #   "//starboard/elf_loader:constants",
+    #   "//starboard/elf_loader:evergreen_config",
+    #   "//starboard/loader_app:pending_restart",
+    # ]
   }
 
   if (sb_evergreen_compatible_use_libunwind) {
@@ -54,9 +54,9 @@ static_library("starboard_base_symbolize") {
     "//starboard:starboard_headers_only",
     "//starboard/common:common_headers_only",
   ]
-  if (sb_is_evergreen_compatible && current_toolchain == starboard_toolchain) {
-    public_deps = [ "//starboard/elf_loader:evergreen_info" ]
-  }
+  # if (sb_is_evergreen_compatible && current_toolchain == starboard_toolchain) {
+  #   public_deps = [ "//starboard/elf_loader:evergreen_info" ]
+  # }
 }
 
 static_library("starboard_platform_sources") {
