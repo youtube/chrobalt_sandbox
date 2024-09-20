@@ -17,15 +17,12 @@ gclient sync -r $(git rev-parse HEAD)
 Then to build linux:
 
 ```shell
-gn gen out/Default
+mkdir out/Default/
 cp chrobalt/linux/args.gn out/Default/
 gn gen out/Default
-ninja -C out/Default base_unittests
 ```
 
-Replacing `base_unittests` with whatever target you want to build.
-
-Then to starboard shared lib:
+Then to build starboard shared lib:
 ```shell
 ninja -C ./out/Default/ starboard/libstarboard_static.so.17
 ```
