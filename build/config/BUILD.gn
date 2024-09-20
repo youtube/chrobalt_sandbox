@@ -246,6 +246,7 @@ group("common_deps") {
   }
 
   if (use_custom_libcxx) {
+    print("yahoo")
     public_deps += [ "//buildtools/third_party/libc++" ]
   }
 
