@@ -24,3 +24,8 @@ ninja -C out/Default base_unittests
 ```
 
 Replacing `base_unittests` with whatever target you want to build.
+
+Then to starboard shared lib:
+```shell
+ninja -C ./out/Default/ starboard/libstarboard_static.so.17
+```
